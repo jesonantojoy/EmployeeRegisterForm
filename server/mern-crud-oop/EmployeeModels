@@ -1,0 +1,95 @@
+const mongoose = require('mongoose');
+
+class Employee {
+    constructor() {
+        const mongoose = require('mongoose');
+
+        const EmployeeSchema = new mongoose.Schema({
+            Employeename: { 
+                type: String, 
+                required: true,
+                trim: true // Removes whitespace
+            },
+            Employee_id: { 
+                type: Number, 
+                required: true, 
+                unique: true 
+            },
+            Phone: {
+                type: Number,
+                required: true,
+                unique: true,
+                validate: {
+                    validator: function(v) {
+                        return /^[0-9]{10}$/.test(v); // Simple validation for a 10-digit phone number
+                    },
+                    message: props => `${props.value} is not a valid phone number!`
+                }
+            },
+            email: {
+                type: String,
+                required: true,
+                unique: true,
+                match: [/.+@.+\..+/, 'Please enter a valid email address'] 
+            },
+            Salary: { 
+                type: Number, 
+                required: true,
+                min: 0 
+            },
+            JoiningDate: { 
+                type: Date, 
+                required: true 
+            },
+            ImageURL: { 
+                type: String, 
+                required: true 
+            },
+            designation: { 
+                type: String, 
+                required: true 
+            }
+        }, { timestamps: true });
+
+        this.EmployeeModels = mongoose.model('Employee', EmployeeSchema);
+    }
+
+    async create(data) {
+        try {
+            const employee = new this.EmployeeModels(data);
+            return await employee.save();
+        } catch (error) {
+            console.error("Error creating employee:", error);
+            throw error; 
+        }
+    }
+
+    async read(query = {}) {
+        try {
+            return await this.EmployeeModels.find(query);
+        } catch (error) {
+            console.error("Error reading employees:", error);
+            throw error;
+        }
+    }
+
+    async update(id, data) {
+        try {
+            return await this.EmployeeModels.findByIdAndUpdate(id, data, { new: true });
+        } catch (error) {
+            console.error("Error updating employee:", error);
+            throw error;
+        }
+    }
+
+    async delete(id) {
+        try {
+            return await this.EmployeeModels.findByIdAndDelete(id);
+        } catch (error) {
+            console.error("Error deleting employee:", error);
+            throw error;
+        }
+    }
+}
+
+module.exports = Employee;
